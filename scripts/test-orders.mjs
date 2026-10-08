@@ -21,6 +21,10 @@ assert.equal((await call('/api/orders/'+first.body.order.id,owner,'PATCH',update
 assert.equal((await call('/api/orders',alice,'POST',{...payload,requestKey:crypto.randomUUID(),items:[{id:'b1',qty:-1}]})).status,400);
 assert.equal((await call('/api/orders',alice,'POST',{...payload,requestKey:crypto.randomUUID(),terms:false})).status,400);
 assert.equal((await call('/api/orders',{...alice,Origin:'https://attacker.test'},'POST',payload)).status,403);
+const initialUserState=await call('/api/user-state',alice);assert.equal(initialUserState.status,200);assert.equal(initialUserState.body.state,null);
+const savedUserState=await call('/api/user-state',alice,'PUT',{profile:{name:'Ana',phone:'3001234567'},favorites:['b1','c1'],addresses:[{name:'Casa',address:'Calle 1 # 2-3',district:'Centro'}],activeOrderId:first.body.order.id,discount:'DULCE10'});assert.equal(savedUserState.status,200);assert.equal(savedUserState.body.state.profile.email,'alice@example.test');
+const sameUserOtherDevice=await call('/api/user-state',{...alice});assert.deepEqual(sameUserOtherDevice.body.state.favorites,['b1','c1']);assert.equal(sameUserOtherDevice.body.state.addresses[0].name,'Casa');assert.equal(sameUserOtherDevice.body.state.activeOrderId,first.body.order.id);
+assert.equal((await call('/api/user-state',bob)).body.state,null);
 assert.equal((await call('/api/orders',alice,'GET',null,{})).status,503);
 const catalog={version:0,customProducts:[],unavailable:['b1']};assert.equal((await call('/api/catalog',alice,'PUT',catalog)).status,403);assert.equal((await call('/api/catalog',owner,'PUT',catalog)).status,200);
 assert.equal((await call('/api/orders',alice,'POST',{...payload,requestKey:crypto.randomUUID()})).status,409);
