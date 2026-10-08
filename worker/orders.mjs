@@ -16,6 +16,20 @@ export async function ordersAPI(request,env,user,baseProducts){
    if(!request.headers.get('Content-Type')?.startsWith('application/json'))fail('Formato no permitido',415);
   }
   async function body(){const raw=await request.text();if(raw.length>100000)fail('Solicitud demasiado grande',413);let parsed;try{parsed=JSON.parse(raw)}catch{fail('Solicitud inválida')}if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))fail('Solicitud inválida');return parsed}
+  if(path==='/api/user-state'&&method==='GET'){
+   const row=await env.DB.prepare('SELECT payload, updated_at FROM user_states WHERE owner_id = ?').bind(user.id).first();
+   return json({state:row?JSON.parse(row.payload):null,updatedAt:row?.updated_at||0});
+  }
+  if(path==='/api/user-state'&&method==='PUT'){
+   const b=await body();
+   const profile=b.profile&&typeof b.profile==='object'&&!Array.isArray(b.profile)?b.profile:{};
+   const favorites=Array.isArray(b.favorites)?[...new Set(b.favorites.filter(x=>typeof x==='string').slice(0,500))]:[];
+   const addresses=Array.isArray(b.addresses)?b.addresses.slice(0,20).map(a=>({name:text(a?.name||'','el nombre de la dirección',80,false),address:text(a?.address||'','la dirección',250,false),district:text(a?.district||'','el barrio',120,false)})).filter(a=>a.name&&a.address):[];
+   const state={profile:{name:text(profile.name||user.name||'','el nombre',120,false),email:user.email,phone:text(profile.phone||'','el teléfono',30,false)},favorites,addresses,activeOrderId:typeof b.activeOrderId==='string'?b.activeOrderId:null,discount:b.discount==='DULCE10'?'DULCE10':null};
+   const now=Date.now(),payload=JSON.stringify(state);
+   await env.DB.prepare('INSERT INTO user_states (owner_id, updated_at, payload) VALUES (?, ?, ?) ON CONFLICT(owner_id) DO UPDATE SET updated_at = excluded.updated_at, payload = excluded.payload').bind(user.id,now,payload).run();
+   return json({state,updatedAt:now});
+  }
   if(path==='/api/catalog'&&method==='GET')return json(await catalogState(env.DB));
   if(path==='/api/catalog'&&method==='PUT'){
    if(user.role!=='administrator')fail('No tienes permiso',403);
