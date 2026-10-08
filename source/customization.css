@@ -1,0 +1,13 @@
+.priceRow{flex-wrap:wrap}.priceRow .primary{font-size:14px;padding:11px 13px}
+.dessert-details{font-size:14px;line-height:1.5;color:var(--muted);margin:7px 0;overflow-wrap:anywhere;white-space:pre-line}
+.dessert-price-note{background:#fff2e5;border:1px solid #edc9a9;border-radius:12px;padding:12px;font-size:14px;line-height:1.5;color:var(--brown)}
+.dessert-order-line{padding:10px 0;border-bottom:1px solid var(--line)}
+.cartRow>div,.orderMini>div{min-width:0}
+#dessert-dialog{width:min(580px,calc(100% - 24px));max-height:90dvh;padding:26px;border:1px solid var(--line);border-radius:24px;background:var(--paper);color:var(--brown);box-shadow:var(--shadow);overflow:auto}
+#dessert-dialog::backdrop{background:rgba(40,24,17,.65)}
+.dessert-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.dessert-dialog-head h2{font:700 28px/1.15 Georgia,serif;margin:8px 0;overflow-wrap:anywhere}.dessert-dialog-head button{font-size:20px;min-width:44px;min-height:44px}
+.dessert-base{font-size:16px;margin:10px 0 22px}.dessert-base b{color:var(--orange)}
+#dessert-dialog fieldset{border:0;margin:0 0 20px;padding:0;min-width:0}#dessert-dialog legend{font-weight:850;font-size:16px;margin-bottom:10px}#dessert-dialog legend span{font-weight:400;color:var(--muted);font-size:14px}
+.dessert-size-options,.dessert-toppings{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dessert-choice{display:flex;align-items:center;gap:10px;min-height:48px;border:1px solid var(--line);border-radius:13px;padding:12px;background:white;cursor:pointer;font-size:16px}.dessert-choice:has(input:checked){border-color:var(--orange);background:#fff0e4;box-shadow:0 0 0 1px var(--orange)}.dessert-choice input{accent-color:var(--orange);width:18px;height:18px;flex-shrink:0}.dessert-choice small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.dessert-help{font-size:14px;line-height:1.5;color:var(--muted);margin:0 0 12px}.dessert-quantity{max-width:140px}.dessert-error{color:#a52921;font-size:14px}.dessert-error:empty{display:none}#dessert-dialog .field{font-size:14px}#dessert-dialog input,#dessert-dialog textarea{font-size:16px}.dessert-dialog-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}#dessert-dialog :focus-visible{outline:3px solid #a7400c;outline-offset:3px}
+@media(max-width:480px){#dessert-dialog{padding:20px 16px}.dessert-size-options{grid-template-columns:1fr}.dessert-toppings{grid-template-columns:1fr 1fr}.dessert-choice{font-size:14px;padding:10px;gap:7px}.dessert-dialog-footer{flex-wrap:wrap}.dessert-dialog-footer .primary{flex:1}}
