@@ -1,7 +1,26 @@
 'use strict';
-let sharedReady=false,sharedLoading=false,sharedFailure='',catalogVersion=0,remoteCatalog={customProducts:[],unavailable:[]},orderSubmitting=false;
+let sharedReady=false,sharedLoading=false,sharedFailure='',catalogVersion=0,remoteCatalog={customProducts:[],unavailable:[]},orderSubmitting=false,userStateLoaded=false,userStateSaving=false,userStateSaveQueued=false;
 const originalRender=render;
+const originalSave=save;
 render=function(){originalRender();showSharedStatus()};
+function userStatePayload(){return {profile:{name:state.profile?.name||'',email:signedInUser.email,phone:state.profile?.phone||''},favorites:[...(state.favorites||[])],addresses:[...(state.addresses||[])],activeOrderId:state.activeOrderId||null,discount:state.discount||null}}
+function applyUserState(value){
+ if(!value||typeof value!=='object')return;
+ state.profile={...state.profile,...(value.profile||{}),email:signedInUser.email};
+ state.favorites=Array.isArray(value.favorites)?value.favorites:[];
+ state.addresses=Array.isArray(value.addresses)?value.addresses:[];
+ state.activeOrderId=typeof value.activeOrderId==='string'?value.activeOrderId:state.activeOrderId;
+ state.discount=value.discount==='DULCE10'?'DULCE10':null;
+}
+async function persistUserState(){
+ if(role!=='user'||!userStateLoaded)return;
+ if(userStateSaving){userStateSaveQueued=true;return}
+ userStateSaving=true;
+ try{const data=await shopAPI('/api/user-state',{method:'PUT',body:JSON.stringify(userStatePayload())});applyUserState(data.state)}
+ catch(error){sharedFailure=error.message;showSharedStatus()}
+ finally{userStateSaving=false;if(userStateSaveQueued){userStateSaveQueued=false;persistUserState()}}
+}
+save=function(){originalSave();if(role==='user'&&userStateLoaded)persistUserState()};
 function loadGlobal(){const empty=defaultsGlobal();try{const previous=JSON.parse(localStorage.getItem(GLOBAL_STORE)||'{}');empty.supportTickets=Array.isArray(previous.supportTickets)?previous.supportTickets:[]}catch{}return empty}
 function persistGlobalFromState(){try{const previous=JSON.parse(localStorage.getItem(GLOBAL_STORE)||'{}');previous.supportTickets=role==='administrator'?state.supportTickets:[...(previous.supportTickets||[]).filter(t=>(t.ownerEmail||t.email||'')!==activeUserEmail),...state.supportTickets];localStorage.setItem(GLOBAL_STORE,JSON.stringify(previous))}catch{}}
 function syncFromStorage(){}
@@ -19,9 +38,9 @@ function applyCatalog(value){remoteCatalog={customProducts:value.customProducts,
 async function refreshSharedOrders(force=false){
  if(sharedLoading||!role)return;sharedLoading=true;
  try{
-  const [catalog,data]=await Promise.all([shopAPI('/api/catalog'),shopAPI('/api/orders')]);
+  const requests=[shopAPI('/api/catalog'),shopAPI('/api/orders')];if(role==='user'&&!userStateLoaded)requests.push(shopAPI('/api/user-state'));const [catalog,data,userData]=await Promise.all(requests);
   const changed=JSON.stringify(state.orders)!==JSON.stringify(data.orders)||catalog.version!==catalogVersion||!sharedReady;
-  applyCatalog(catalog);state.orders=data.orders;sharedReady=true;sharedFailure='';
+  applyCatalog(catalog);state.orders=data.orders;if(role==='user'&&!userStateLoaded){if(userData?.state)applyUserState(userData.state);userStateLoaded=true;if(!userData?.state)await persistUserState()}sharedReady=true;sharedFailure='';
   const editing=['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
   if(changed&&!editing&&['admin','adminOrders','orders','tracking','menu','home'].includes(view))render();else showSharedStatus();
  }catch(error){sharedFailure=error.message;showSharedStatus()}finally{sharedLoading=false}
