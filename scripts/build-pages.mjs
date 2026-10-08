@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+const root=path.resolve(import.meta.dirname,'..');
+const source=fs.readFileSync(path.join(root,'source/index.html'),'utf8');
+const ctx={}; vm.createContext(ctx); vm.runInContext(source.slice(source.indexOf('const photo='),source.indexOf('const cats='))+';globalThis.catalog=products',ctx);
+fs.mkdirSync(path.join(root,'docs'),{recursive:true});
+fs.writeFileSync(path.join(root,'docs/products.json'),JSON.stringify(ctx.catalog));
+fs.copyFileSync(path.join(root,'pages/index.html'),path.join(root,'docs/index.html'));
+fs.writeFileSync(path.join(root,'docs/.nojekyll'),'');
+console.log('GitHub Pages catalog built: '+ctx.catalog.length+' products');
