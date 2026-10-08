@@ -19,7 +19,7 @@ export function createHandler(assets){
   return {
     async fetch(request,env={}){
       const url=new URL(request.url),user=requestUser(request);
-      if(url.pathname==='/api/orders'||url.pathname.startsWith('/api/orders/')||url.pathname==='/api/catalog')return ordersAPI(request,env,user,assets.products);
+      if(url.pathname==='/api/orders'||url.pathname.startsWith('/api/orders/')||url.pathname==='/api/catalog'||url.pathname==='/api/user-state')return ordersAPI(request,env,user,assets.products);
       if(request.method!=='GET'&&request.method!=='HEAD')return response('Método no permitido',405,'text/plain; charset=utf-8');
       if(url.pathname==='/api/session')return response(JSON.stringify({user}),200,'application/json; charset=utf-8');
       if(url.pathname==='/customization.css')return response(assets.css,200,'text/css; charset=utf-8');
