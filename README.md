@@ -1,22 +1,24 @@
 # Al Horno · Postres
 
-Código del catálogo y pedidos de Al Horno.
+## Página pública
 
-## Estado
+[Visitar Al Horno](https://favid243.github.io/al-horno/)
 
-Código preparado y probado localmente. Subir este repositorio no publica una web funcional ni crea la base de datos alojada.
+GitHub Pages publica la carpeta `docs/` de `main`. Incluye catálogo, búsqueda, carrito, tamaños, toppings y solicitud de pedidos por WhatsApp al negocio. El cliente debe enviar el mensaje y esperar confirmación. Los adicionales y el domicilio se cotizan por WhatsApp.
 
-## Funciones
+Esta página no usa cuentas ni guarda pedidos compartidos. El carrito queda en el navegador. No se efectúan cobros.
 
-- Acceso con ChatGPT y pantallas separadas de inicio y registro.
-- Permisos de administrador para el propietario configurado y de usuario para clientes.
-- Pedidos compartidos mediante D1; cada cliente ve los suyos y el administrador todos.
-- Confirmación de pedidos y envío por WhatsApp.
-- Tamaños, toppings y notas; los adicionales quedan sujetos a cotización.
+Para regenerar el catálogo público:
 
-## Desarrollo
+```sh
+node scripts/build-pages.mjs
+```
 
-Requiere Node.js con `node:sqlite` y pnpm.
+Editar `pages/index.html` para la presentación y `source/index.html` para los productos, después regenerar y subir `docs/`.
+
+## Aplicación con servidor (pendiente de desplegar)
+
+El código de `worker/`, `db/` y `source/shared-orders.js` implementa inicio de sesión con ChatGPT, permisos por rol y pedidos compartidos en D1. Está preparado para Sites y no se ejecuta en GitHub Pages. Requiere la autenticación verificada de Sites y el binding `DB`, junto a las migraciones en `drizzle/`. No exponer el Worker directamente confiando en cabeceras que pueda enviar un visitante.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -25,10 +27,4 @@ node scripts/test.mjs
 node scripts/test-orders.mjs
 ```
 
-## Alojamiento
-
-Esta versión está diseñada para Sites: utiliza su autenticación verificada y una base D1 con binding `DB`. Las migraciones están en `drizzle/`. El build genera `dist/server/index.js` y los metadatos de despliegue.
-
-GitHub Pages solo aloja archivos estáticos, por lo que no ejecuta este servidor ni los pedidos compartidos. Para otro proveedor es necesario adaptar la autenticación, provisionar la base de datos y aplicar las migraciones. No exponer directamente el Worker confiando en cabeceras de identidad enviadas por el visitante.
-
-Los pedidos antiguos guardados en navegadores no se importan automáticamente. Soporte permanece local. Las pruebas usan SQLite y clientes simulados; queda pendiente verificar el despliegue real.
+Requiere Node.js con `node:sqlite`. Las pruebas locales del servidor usan SQLite real y clientes simulados. Falta comprobar esa versión en alojamiento. Los pedidos antiguos de cada navegador no se importan automáticamente.
