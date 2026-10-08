@@ -7,6 +7,8 @@ const ctx={}; vm.createContext(ctx); vm.runInContext(source.slice(source.indexOf
 fs.mkdirSync(path.join(root,'docs'),{recursive:true});
 fs.writeFileSync(path.join(root,'docs/products.json'),JSON.stringify(ctx.catalog));
 let page=fs.readFileSync(path.join(root,'pages/index.html'),'utf8');
+page=page.replace('</head>','<link rel="stylesheet" href="./storefront.css"></head>').replace('</body>','<script src="./storefront.js"></script><script src="./remote-config.js"></script><script src="./accounts.js"></script></body>');
+for(const name of ['storefront.css','storefront.js','remote-config.js','accounts.js'])fs.copyFileSync(path.join(root,'pages',name),path.join(root,'docs',name));
 page=page.replaceAll('href="#carrito"','href="./carrito.html"');
 page=page.replace('function draw(){let total=0,count=0;',"function draw(){if(!$('items')){$('count').textContent=cart.reduce((sum,x)=>sum+x.qty,0);save();return}let total=0,count=0;");
 page=page.replace("$('items').onclick=", "if($('items'))$('items').onclick=");

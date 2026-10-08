@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const API='https://tuetmzsfyosopuyscpuf.supabase.co/functions/v1/al-horno-api';
+async function call(path,method='GET',body,token){const r=await fetch(API+path,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:r.status,data:await r.json()};}
+const a=await call('/guest','POST',{}),b=await call('/guest','POST',{});
+assert.equal(a.status,200,JSON.stringify(a.data));assert.equal(b.status,200);
+const p=JSON.parse(fs.readFileSync(new URL('../supabase/products.json',import.meta.url)))[0];
+const payload={requestKey:crypto.randomUUID(),name:'PRUEBA AUTOMATICA',phone:'0000000000',address:'PRUEBA, NO ENTREGAR',payment:'Efectivo',items:[{id:p.id,qty:2,expectedPrice:p.price,size:'Original',toppings:[],note:''}],total:1,delivery:0,role:'administrator'};
+const created=await call('/orders','POST',payload,a.data.token);assert.equal(created.status,201,JSON.stringify(created.data));const order=created.data.order;
+assert.equal(order.payload.total,p.price*2+4500);assert.equal(order.payload.delivery,4500);
+assert.equal((await call('/orders','POST',payload,a.data.token)).data.order.id,order.id);
+assert.equal((await call('/orders','GET',undefined,b.data.token)).data.orders.length,0);
+assert.equal((await call('/orders/'+order.id,'PATCH',{status:'entregado',version:1},a.data.token)).status,403);
+assert.equal((await call('/orders')).status,401);
+assert.equal((await call('/orders','POST',{...payload,requestKey:crypto.randomUUID(),items:[{...payload.items[0],expectedPrice:1}]},a.data.token)).status,409);
+const thread=await call('/threads','POST',{name:'PRUEBA AUTOMATICA',message:'PRUEBA DE AISLAMIENTO'},a.data.token);assert.equal(thread.status,201,JSON.stringify(thread.data));
+assert.equal((await call('/threads/'+thread.data.thread.id+'/messages','GET',undefined,b.data.token)).status,404);
+assert.equal((await call('/threads/'+thread.data.thread.id+'/messages','POST',{message:'intento'},b.data.token)).status,404);
+assert.equal((await call('/threads/'+thread.data.thread.id+'/messages','GET',undefined,a.data.token)).data.messages.length,1);
+console.log(JSON.stringify({passed:['guest orders','authoritative delivery and totals','idempotency','cross-device isolation','admin authorization','price validation','support isolation'],testOwners:[a.data.user.id,b.data.user.id],testOrder:order.id,testThread:thread.data.thread.id}));
