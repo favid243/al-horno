@@ -1,24 +1,26 @@
 # Al Horno · Postres
 
-## Página pública
+[Visitar Al Horno](https://favid243.github.io/al-horno/) · [Carrito](https://favid243.github.io/al-horno/carrito.html)
 
-[Visitar Al Horno](https://favid243.github.io/al-horno/)
+GitHub Pages publica `docs/` de `main`. Incluye catálogo, búsqueda, páginas de producto, tamaños, toppings, carrito separado y domicilio fijo de COP 4.500. Los adicionales se cotizan aparte. Efectivo, Nequi y WhatsApp son métodos de coordinación del pago; no se realizan cobros automáticos.
 
-GitHub Pages publica la carpeta `docs/` de `main`. Incluye catálogo, búsqueda, carrito, tamaños, toppings y solicitud de pedidos por WhatsApp al negocio. El cliente debe enviar el mensaje y esperar confirmación. Los adicionales y el domicilio se cotizan por WhatsApp.
+Los pedidos y mensajes de soporte se guardan en Supabase mediante `al-horno-api`. Los invitados pueden comprar y escribir al soporte. Cada cliente ve sus propios registros. El administrador podrá ver los pedidos y conversaciones de todos los dispositivos al completar la activación de su cuenta.
 
-Esta página no usa cuentas ni guarda pedidos compartidos. El carrito queda en el navegador. No se efectúan cobros.
+**Pendiente:** conectar el envío SMTP de correos, verificar el registro y provisionar la cuenta administradora. Los formularios de inicio de sesión y registro ya están publicados, pero el registro para clientes externos no está listo hasta configurar SMTP. Ver [estado de despliegue](supabase/DEPLOYMENT.md).
 
-Para regenerar el catálogo público:
+El carrito y el token de sesión permanecen en el navegador. Los pedidos enviados se guardan en el servidor. Los pedidos antiguos de otras versiones guardados solo en cada navegador no se importan automáticamente.
+
+## Desarrollo
 
 ```sh
 node scripts/build-pages.mjs
 ```
 
-Editar `pages/index.html` para la presentación y `source/index.html` para los productos, después regenerar y subir `docs/`.
+Editar `pages/` para la presentación y `source/index.html` para el catálogo; regenerar `docs/`. Al cambiar productos o precios, sincronizar `supabase/products.json` y desplegar de nuevo la función. Nunca incluir claves privadas en `docs/`.
 
-## Aplicación con servidor (pendiente de desplegar)
+## Versión anterior para Sites
 
-El código de `worker/`, `db/` y `source/shared-orders.js` implementa inicio de sesión con ChatGPT, permisos por rol y pedidos compartidos en D1. Está preparado para Sites y no se ejecuta en GitHub Pages. Requiere la autenticación verificada de Sites y el binding `DB`, junto a las migraciones en `drizzle/`. No exponer el Worker directamente confiando en cabeceras que pueda enviar un visitante.
+`worker/`, `db/` y `source/shared-orders.js` corresponden a una implementación anterior con ChatGPT y D1 que no se ejecuta en GitHub Pages. Requiere autenticación verificada de Sites, el binding `DB` y las migraciones de `drizzle/`. No exponer ese Worker confiando en cabeceras enviadas por visitantes.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -26,5 +28,3 @@ node scripts/build.mjs
 node scripts/test.mjs
 node scripts/test-orders.mjs
 ```
-
-Requiere Node.js con `node:sqlite`. Las pruebas locales del servidor usan SQLite real y clientes simulados. Falta comprobar esa versión en alojamiento. Los pedidos antiguos de cada navegador no se importan automáticamente.
