@@ -4,9 +4,11 @@
 
 GitHub Pages publica `docs/` de `main`. Incluye catálogo, búsqueda, páginas de producto, tamaños, toppings, carrito separado y domicilio fijo de COP 4.500. Los adicionales se cotizan aparte. Efectivo, Nequi y WhatsApp son métodos de coordinación del pago; no se realizan cobros automáticos.
 
-Los pedidos y mensajes de soporte se guardan en Supabase mediante `al-horno-api`. Los invitados pueden comprar y escribir al soporte. Cada cliente ve sus propios registros. El administrador podrá ver los pedidos y conversaciones de todos los dispositivos al completar la activación de su cuenta.
+Los pedidos y mensajes de soporte se guardan en Supabase mediante `al-horno-api`. Los invitados pueden comprar y escribir al soporte. Cada cliente ve sus propios registros. El administrador tiene un panel con pestañas para los pedidos y las conversaciones de todos los dispositivos.
 
-**Pendiente:** conectar el envío SMTP de correos, verificar el registro y provisionar la cuenta administradora. Los formularios de inicio de sesión y registro ya están publicados, pero el registro para clientes externos no está listo hasta configurar SMTP. Ver [estado de despliegue](supabase/DEPLOYMENT.md).
+El envío SMTP está configurado y el propietario completó el registro y la confirmación de correo. Su cuenta tiene permisos de administración. Las nuevas cuentas tienen el rol de cliente. Ver [estado de despliegue](supabase/DEPLOYMENT.md).
+
+La interfaz incluye una guía de compra en tres pasos, búsqueda, categorías, orden por precio o nombre, opciones del producto y resumen de domicilio y total. El acceso a la cuenta es opcional, desde «Mi cuenta». Los estilos se adaptan al celular y respetan la preferencia de reducir animaciones.
 
 El carrito y el token de sesión permanecen en el navegador. Los pedidos enviados se guardan en el servidor. Los pedidos antiguos de otras versiones guardados solo en cada navegador no se importan automáticamente.
 
